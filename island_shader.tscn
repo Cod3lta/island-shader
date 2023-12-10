@@ -1,0 +1,155 @@
+[gd_scene load_steps=13 format=3 uid="uid://6foxw77pwkdh"]
+
+[ext_resource type="Script" path="res://island_shader.gd" id="1_h1r1f"]
+[ext_resource type="FastNoiseLite" uid="uid://db2tyy7w00s1r" path="res://island_noise.tres" id="1_oo743"]
+[ext_resource type="Shader" path="res://island_shader.gdshader" id="1_x7ccg"]
+
+[sub_resource type="Gradient" id="Gradient_mfgjm"]
+offsets = PackedFloat32Array(0.2, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 15
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_bykw8"]
+width = 720
+height = 720
+color_ramp = SubResource("Gradient_mfgjm")
+noise = ExtResource("1_oo743")
+
+[sub_resource type="Gradient" id="Gradient_pdn2f"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.2, 0.333333, 0.466667, 0.666667, 0.8)
+colors = PackedColorArray(0.4378, 0.616361, 1, 1, 0.808911, 0.670794, 0.525727, 1, 0.431373, 0.678431, 0.294118, 1, 0.328308, 0.52442, 0.21908, 1, 0.215686, 0.352941, 0.219608, 1, 0.597569, 0.602106, 0.560061, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 15
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_6ka80"]
+width = 720
+height = 720
+color_ramp = SubResource("Gradient_pdn2f")
+noise = ExtResource("1_oo743")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_76hfh"]
+viewport_path = NodePath("LandColor")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_g10au"]
+viewport_path = NodePath("LandHeight")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5dabx"]
+resource_local_to_scene = true
+shader = ExtResource("1_x7ccg")
+shader_parameter/isometricShadows = false
+shader_parameter/sunPos = Vector3(0.83, 0.805, 2.1)
+shader_parameter/steps = 200.0
+shader_parameter/heightTex = SubResource("ViewportTexture_g10au")
+shader_parameter/colorTex = SubResource("ViewportTexture_76hfh")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_sp7gp"]
+viewport_path = NodePath("LandColor")
+
+[sub_resource type="Theme" id="Theme_suo24"]
+MarginContainer/constants/margin_bottom = 15
+MarginContainer/constants/margin_left = 15
+MarginContainer/constants/margin_right = 15
+MarginContainer/constants/margin_top = 15
+
+[node name="IslandShader" type="Node2D"]
+script = ExtResource("1_h1r1f")
+
+[node name="LandHeight" type="SubViewport" parent="."]
+size = Vector2i(720, 720)
+
+[node name="Sprite" type="Sprite2D" parent="LandHeight"]
+position = Vector2(360, 360)
+texture = SubResource("NoiseTexture2D_bykw8")
+
+[node name="LandColor" type="SubViewport" parent="."]
+size = Vector2i(720, 720)
+
+[node name="Sprite" type="Sprite2D" parent="LandColor"]
+position = Vector2(360, 360)
+texture = SubResource("NoiseTexture2D_6ka80")
+
+[node name="sprite" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_5dabx")
+position = Vector2(360, 360)
+texture = SubResource("ViewportTexture_sp7gp")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 346.0
+offset_bottom = 107.0
+theme = SubResource("Theme_suo24")
+
+[node name="ColorRect" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.121569, 0.121569, 0.121569, 0.631373)
+
+[node name="Control" type="MarginContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/Control/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+alignment = 1
+
+[node name="IsometricShadowsLabel" type="Label" parent="Control/Control/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Isometric shadow"
+
+[node name="IsometricShadowsToggle" type="CheckButton" parent="Control/Control/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Control/Control/VBoxContainer"]
+layout_mode = 2
+
+[node name="SunDistanceLabel" type="Label" parent="Control/Control/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Sun height"
+
+[node name="SunDistanceSlider" type="HSlider" parent="Control/Control/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+max_value = 5.0
+step = 0.1
+
+[node name="SunDistanceValue" type="Label" parent="Control/Control/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+text = "0"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="Control/Control/VBoxContainer"]
+layout_mode = 2
+
+[node name="SunPositionLabel" type="Label" parent="Control/Control/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Sun position: "
+
+[node name="SunPositionValue" type="Label" parent="Control/Control/VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+text = "0"
+
+[connection signal="toggled" from="Control/Control/VBoxContainer/HBoxContainer/IsometricShadowsToggle" to="." method="_on_isometric_shadows_toggle_toggled"]
+[connection signal="value_changed" from="Control/Control/VBoxContainer/HBoxContainer2/SunDistanceSlider" to="." method="_on_sun_distance_slider_value_changed"]
